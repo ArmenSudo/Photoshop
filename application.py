@@ -1,6 +1,5 @@
 from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtCore import QThread
-import time
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMenuBar, QMenu, QFileDialog, QMessageBox
 from PyQt5.QtGui import QPixmap, QImage
 from PyQt5.QtCore import pyqtSignal, Qt
@@ -18,11 +17,6 @@ import max_rgb_filter
 import edge_detection
 import contrast
 import gausian_blur
-
-# from PyQt5.QtCore import *  # shufle
-# from PyQt5.QtGui import *
-
-# from PyQt5.QtWidgets import *
 
 try:
     os.mkdir(".cache_File")
@@ -71,7 +65,7 @@ class Window(QMainWindow):
         self.img_label.setGeometry(20, 40, 900, 740)
         self.img_label.setStyleSheet("background-color:#FFFFFF; border: 3px solid blue")
 
-# For Camera
+        # For Camera
         self.img_label1 = QtWidgets.QLabel(self)
         self.img_label1.setGeometry(20, 40, 900, 740)
         self.img_label1.setStyleSheet("background-color:#FFFFFF; border: 3px solid blue")
@@ -190,10 +184,13 @@ class Window(QMainWindow):
         self.menuBar.setStyleSheet("background-color:#FFFFFF")
         fileMenu = QMenu("&File", self)
         self.menuBar.addMenu(fileMenu)
-        fileMenu.setStyleSheet("background-color:#FFFFFF")
+        fileMenu.setStyleSheet("""QMenuBar {
+                     background-color: blue;
+                }""")
 
         fileMenu.addAction("Open", self.action_clicked)
         fileMenu.addAction("Save", self.action_clicked)
+
 
     # Menu button action
     @QtCore.pyqtSlot()
@@ -203,16 +200,17 @@ class Window(QMainWindow):
             try:
                 self.fname = QFileDialog.getOpenFileName(self)[0]
                 self.img = cv2.imread(self.fname)
-                self.open_img(self.fname)
-                cv2.imwrite('.cache_File/_________________orginal_______img___.jpg', self.img)
+                if self.fname != '':
+                    self.open_img(self.fname)
+                    cv2.imwrite('.cache_File/_________________orginal_______img___.jpg', self.img)
 
-            except FileNotFoundError:
-                print("No such file")
+            except:
+                print("No Such File")
         elif action.text() == "Save":
 
             try:
-                save_path = QFileDialog.getSaveFileName(self)[0]
 
+                save_path = QFileDialog.getSaveFileName(self)[0]
                 cv2.imwrite(save_path, self.final_img)
             except cv2.error:
                 print("Brnelem")
@@ -261,9 +259,11 @@ class Window(QMainWindow):
                     self.img = np.fliplr(self.img)
                     self.btn_camera.click()
                     cv2.imwrite('.cache_File/_________________orginal_______img___.jpg', self.img)
+                    self.fname = '.cache_File/_________________orginal_______img___.jpg'
                     self.open_img('.cache_File/_________________orginal_______img___.jpg')
                 case "Undo":
-                    self.open_img('.cache_File/_________________orginal_______img___.jpg')
+                    if self.fname != 0:
+                        self.open_img('.cache_File/_________________orginal_______img___.jpg')
         except AttributeError:
             error = QMessageBox()
             error.setWindowTitle("Empty")
