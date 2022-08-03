@@ -2,7 +2,7 @@ import numpy as np
 from scipy import signal
 import cv2
 
-
+# All number values is taken from the OpenCv documentation
 def contrast(img: np.ndarray, value: int = 30):
     img_filter = img.copy()
     img_filter[img_filter < value] = 0
