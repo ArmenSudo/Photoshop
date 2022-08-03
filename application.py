@@ -1,8 +1,7 @@
 from PyQt5 import QtWidgets, QtCore, QtGui
-from PyQt5.QtCore import QThread
+from PyQt5.QtCore import QThread, pyqtSignal, Qt
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMenuBar, QMenu, QFileDialog, QMessageBox
 from PyQt5.QtGui import QPixmap, QImage
-from PyQt5.QtCore import pyqtSignal, Qt
 
 import cv2
 
@@ -12,11 +11,7 @@ import sys
 import os
 import shutil
 
-import gray_filter
-import max_rgb_filter
-import edge_detection
-import contrast
-import gausian_blur
+import filters
 
 try:
     os.mkdir(".cache_File")
@@ -26,7 +21,7 @@ except FileExistsError:
 global_photo = 0
 
 
-# _________________________________________________         Camera code          ______________________________________
+# _ Camera code _
 class Worker1(QThread):
     ImageUpdate = pyqtSignal(QImage)
     frame = 0
@@ -120,9 +115,6 @@ class Window(QMainWindow):
         self.btn_camera.setCheckable(True)
         self.btn_camera.clicked.connect(self.camera_status_button)
 
-        # Status bar
-        # self.status_bar = QtWidgets.QLabel
-
         # Action when you close Program
         self.setAttribute(Qt.WA_DeleteOnClose, True)
 
@@ -140,7 +132,7 @@ class Window(QMainWindow):
         self.btn_photo.clicked.connect(self.CancelFeed)
         self.btn_photo.clicked.connect(self.clicked_btn)
 
-    # ____________- Camera ________________
+    # _ Camera _
     def ImageUpdateSlot(self, Image):
         pixmap = QPixmap(QPixmap.fromImage(Image))
         pixmap_resized = pixmap.scaled(900, 740, QtCore.Qt.KeepAspectRatio)
@@ -191,7 +183,6 @@ class Window(QMainWindow):
         fileMenu.addAction("Open", self.action_clicked)
         fileMenu.addAction("Save", self.action_clicked)
 
-
     # Menu button action
     @QtCore.pyqtSlot()
     def action_clicked(self):
@@ -213,9 +204,9 @@ class Window(QMainWindow):
                 save_path = QFileDialog.getSaveFileName(self)[0]
                 cv2.imwrite(save_path, self.final_img)
             except cv2.error:
-                print("Brnelem")
+                print('cv2 error')
             except AttributeError:
-                print("ba axper 2")
+                print('No path')
 
     # open image from file
     def open_img(self, path):
@@ -233,24 +224,24 @@ class Window(QMainWindow):
         try:
             match click.text():
                 case "Max RGB":
-                    img0 = max_rgb_filter.filtering(self.img)
+                    img0 = filters.filtering(self.img)
                     cv2.imwrite('.cache_File/max_rgb.jpg', img0)
                     self.open_img('.cache_File/max_rgb.jpg')
                 case "Blur":
-                    img0 = gausian_blur.gaussian_blur(self.img)
+                    img0 = filters.gaussian_blur(self.img)
                     cv2.imwrite('.cache_File/blur.jpg', img0)
                     self.open_img('.cache_File/blur.jpg')
 
                 case "Edge Detection":
-                    img0 = edge_detection.laplacian(self.img)
+                    img0 = filters.laplacian(self.img)
                     cv2.imwrite('.cache_File/edge_detect.jpg', img0)
                     self.open_img('.cache_File/edge_detect.jpg')
                 case "Contrast":
-                    img0 = contrast.contrast(self.img)
+                    img0 = filters.contrast(self.img)
                     cv2.imwrite('.cache_File/contrast.jpg', img0)
                     self.open_img('.cache_File/contrast.jpg')
                 case "Gray":
-                    img = gray_filter.gray_imp(self.img)
+                    img = filters.gray_imp(self.img)
                     cv2.imwrite('.cache_File/gray.jpg', img)
                     self.open_img('.cache_File/gray.jpg')
                 case 'Photo':
@@ -294,5 +285,3 @@ def application():
 
 if __name__ == "__main__":
     application()
-
-# pip install opencv-python-headless  ---->  camera problem
