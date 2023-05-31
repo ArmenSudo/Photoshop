@@ -1,29 +1,16 @@
-name: Check API Health
+name: Hello World
 
 on:
-  schedule:
-    - cron: '*/1 * * * *'
+  push:
+    branches:
+      - main
 
 jobs:
-  check-health:
+  build:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
 
-      - name: Make request to API
-        run: curl -s https://example.com
-
-      - name: Check response
-        run: |
-          if [[ $? -ne 0 ]]; then
-            echo "API is unhealthy"
-          else
-            echo "API is healthy"
-          fi
-
-      - name: Take action if unhealthy
-        if: ${{ steps.check-response.outputs.status == 'unhealthy' }}
-        run: |
-          echo "Sending email notification..."
-          send-email-notification
+      - name: Run a simple command
+        run: echo "Hello, world!"
